@@ -72,10 +72,19 @@ void sortMatrice( Matrice& matrice )
    sort( matrice.begin(), matrice.end(), comparerMaxSommeLignes );
 }
 
+bool estCarree(const Matrice& matrice){
+   for(size_t i = 0; i < matrice.size(); ++i){
+      if(matrice[i].size() != matrice.size())
+         return false;
+   }
+   return true;
+}
+
+
 bool sommeDiagGD( const Matrice& matrice, int& somme )
 {
-   //if ( !estCarree(matrice) )
-   //   return false;
+   if ( !estCarree(matrice) )
+      return false;
    
    int i = 0;
    somme = 0;
@@ -93,8 +102,8 @@ bool sommeDiagGD( const Matrice& matrice, int& somme )
 
 bool sommeDiagDG( const Matrice& matrice, int& somme )
 {
-   //if ( !estCarree(matrice) )
-   //   return false;
+   if ( !estCarree(matrice) )
+      return false;
    
    int i = 0;
    somme = 0;
@@ -125,14 +134,6 @@ ostream& operator<<(ostream& os, const Matrice& matrice)
 }
 
 
-bool estCarree(const Matrice& matrice){
-   for(size_t i = 0; i < matrice.size(); ++i){
-      if(matrice[i].size() != matrice.size())
-         return false;
-   }
-   return true;
-}
-
 bool compareMinSommeLignes(Ligne ligneA, Ligne ligneB){
    return sommeLigne(ligneA) < sommeLigne(ligneB);
 }
@@ -144,38 +145,61 @@ Ligne vectSommeMin(const Matrice& matrice){
 int main()
 {
    const unsigned int W = 40;
-   Matrice matrice = {
-                            {1,2,3,4},
-                            {5,6,7,8},
-                            {9,10,11,12},
-                            {13,14,15,16}
-                           };
+   const string MSG_MATRICE_NON_CARRE = "Matrice non carree !";
+   
+   
+   
+   vector<Matrice> matrices = {
+                                 //Matrice carrée d'ordre 4
+                                 {
+                                     {1,2,3,4},
+                                     {5,6,7,8},
+                                     {9,10,11,12},
+                                     {13,14,15,16}
+                                 },
+                                 //Matrice non carrée
+                                 {
+                                     {5,6,7,8},
+                                     {1,2,3,4}
+                                 },
+                                 //"Matrice" irrégulière
+                                 {
+                                     {1,2,3,4,5,6},
+                                     {9},
+                                     {7,8},
+                                     {13,14,15,16}
+                                 }
+                              };
    
    Ligne v = {1,2,3,4,5};
+   
+   
+   
    cout << left << boolalpha;
+   
+   
+   
    cout << setw(W) << "Affichage de vecteur : " << v << endl;
-   cout << setw(W) << "Affichage de matrice : " << matrice << endl;
-   cout << setw(W) << "Somme des lignes de la matrice : " << sommeLignes(matrice) << endl;
-   
-   cout << setw(W) << "Matrice carree ? " << estCarree(matrice) << endl;
-   
-   cout << setw(W) << "Vecteur avec somme minimale : " << vectSommeMin(matrice) << endl;
-   
-   int diagGD = 0;
-   sommeDiagGD( matrice, diagGD );
-   cout << setw(W) << "Somme diagonale gauche-droite : "  << diagGD << endl;
-   
-   int diagDG = 0;
-   sommeDiagDG( matrice, diagDG );
-   cout << setw(W) << "Somme diagonale droite-gauche : " << diagDG << endl;
-   
-   shuffleMatrice( matrice );
-   cout << setw(W) <<  "Melange de la matrice : " << matrice << endl;
-   
-   sortMatrice( matrice );
-   cout << setw(W) << "Tri de la matrice selon max ligne : " << matrice << endl;
-   
-   cout << endl << endl << endl;
+   for(Matrice& matrice : matrices){
+      cout << setw(W) << "Affichage de matrice : " << matrice << endl;
+      cout << setw(W) << "Somme des lignes de la matrice : " << sommeLignes(matrice) << endl;
+
+      cout << setw(W) << "Matrice carree ? " << estCarree(matrice) << endl;
+
+      cout << setw(W) << "Vecteur avec somme minimale : " << vectSommeMin(matrice) << endl;
+
+      int diag = 0;
+      cout << setw(W) << "Somme diagonale gauche-droite : " << (sommeDiagGD(matrice, diag)? to_string(diag) : MSG_MATRICE_NON_CARRE) << endl;
+      cout << setw(W) << "Somme diagonale droite-gauche : " << (sommeDiagDG(matrice, diag)? to_string(diag) : MSG_MATRICE_NON_CARRE) << endl;
+
+      shuffleMatrice( matrice );
+      cout << setw(W) <<  "Melange de la matrice : " << matrice << endl;
+
+      sortMatrice( matrice );
+      cout << setw(W) << "Tri de la matrice selon max ligne : " << matrice << endl;
+
+      cout << endl << endl << endl;
+   }
    
    
    
