@@ -13,12 +13,15 @@
  */
 #include <cstdlib>
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <algorithm>
 #include <random>
+#include <numeric>
 #include <ctime>
 
 using namespace std;
+
 
 ostream& operator<<(ostream& os, const vector<int>& vec)
 {
@@ -41,20 +44,12 @@ ostream& operator<<(ostream& os, const vector<int>& vec)
 }
 
 int sommeLigne(const vector<int>& ligne) {
-   int sum = 0;
-   
-   for(vector<int>::const_iterator it = ligne.cbegin(); it != ligne.cend(); ++it)
-   {
-      sum += *it;
-   }
-   
-   return sum;
+   return accumulate(ligne.begin(), ligne.end(), 0);
 }
 
 vector<int> sommeLignes( const vector<vector<int>>& matrice )
 {
    vector<int> sommes( matrice.size() );
-   
    transform( matrice.cbegin(), matrice.cend(), sommes.begin(), sommeLigne );
    
    return sommes;
@@ -96,6 +91,7 @@ bool sommeDiagGD( const vector<vector<int>>& matrice, int& somme )
 
 int main()
 {
+   const unsigned int W = 40;
    vector<vector<int>> m = {
                             {1,2,3,4},
                             {5,6,7,8},
@@ -103,16 +99,21 @@ int main()
                             {13,14,15,16}
                            };
    
-   
    vector<int> v = {1,2,3,4,5};
+   cout << left;
+   cout << setw(W) << "Affichage de vecteur" << " : " << v << endl;
+   cout << setw(W) << "Somme des lignes de la matrice" << " : " << sommeLignes(m) << endl;
    
-   cout << v << endl;
    
    int diagGD = 0;
-   cout << "Calcul de la diagonale..." << endl;
    sommeDiagGD( m, diagGD );
+   cout << setw(W) << "Somme diagonale gauche-droite" << " : " << diagGD << endl;
    
-   cout << "Somme diagonale gauche-droite : " << diagGD << endl;
+   shuffleMatrice( m );
+   //cout << setw(W) <<  "Melange de la matrice" << " : " << m << endl;
+   
+   sortMatrice( m );
+   //cout << setw(W) << "Tri de la matrice selon max ligne" << " : " << m << endl;
    
    return EXIT_SUCCESS;
 }
