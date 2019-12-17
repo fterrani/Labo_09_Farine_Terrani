@@ -22,8 +22,10 @@
 
 using namespace std;
 
+using Ligne = vector<int>;
+using Matrice = vector<Ligne>;
 
-ostream& operator<<(ostream& os, const vector<int>& vec)
+ostream& operator<<(ostream& os, const Ligne& vec)
 {
    os << '[';
    
@@ -31,7 +33,7 @@ ostream& operator<<(ostream& os, const vector<int>& vec)
    {
       os << vec.at(0);
       
-      for ( vector<int>::const_iterator it = vec.cbegin()+1; it != vec.cend(); ++it )
+      for ( Ligne::const_iterator it = vec.cbegin()+1; it != vec.cend(); ++it )
       {
          os << ',';
          os << *it;
@@ -43,11 +45,11 @@ ostream& operator<<(ostream& os, const vector<int>& vec)
    return os;
 }
 
-int sommeLigne(const vector<int>& ligne) {
+int sommeLigne(const Ligne& ligne) {
    return accumulate(ligne.begin(), ligne.end(), 0);
 }
 
-vector<int> sommeLignes( const vector<vector<int>>& matrice )
+Ligne sommeLignes( const Matrice& matrice )
 {
    vector<int> sommes( matrice.size() );
    transform( matrice.cbegin(), matrice.cend(), sommes.begin(), sommeLigne );
@@ -55,22 +57,22 @@ vector<int> sommeLignes( const vector<vector<int>>& matrice )
    return sommes;
 }
 
-void shuffleMatrice( vector<vector<int>>& matrice )
+void shuffleMatrice( Matrice& matrice )
 {
    shuffle( matrice.begin(), matrice.end(), default_random_engine( time(nullptr) ) );
 }
 
-bool comparerMaximums( const vector<int>& a, const vector<int>& b )
+bool comparerMaxSommeLignes( const Ligne& a, const Ligne& b )
 {
    return *max_element(a.cbegin(), a.cend()) < *max_element(b.cbegin(), b.cend());
 }
 
-void sortMatrice( vector<vector<int>>& matrice )
+void sortMatrice( Matrice& matrice )
 {
-   sort( matrice.begin(), matrice.end(), comparerMaximums );
+   sort( matrice.begin(), matrice.end(), comparerMaxSommeLignes );
 }
 
-bool sommeDiagGD( const vector<vector<int>>& matrice, int& somme )
+bool sommeDiagGD( const Matrice& matrice, int& somme )
 {
    //if ( !estCarree(matrice) )
    //   return false;
@@ -79,9 +81,9 @@ bool sommeDiagGD( const vector<vector<int>>& matrice, int& somme )
    somme = 0;
    
    // for ( vector<vector<int>>::const_reverse_iterator itLigne = matrice.crbegin(); itLigne != matrice.crend(); ++itLigne, ++i )
-   for ( vector<vector<int>>::const_iterator itLigne = matrice.cbegin(); itLigne != matrice.cend(); ++itLigne, ++i )
+   for ( Matrice::const_iterator itLigne = matrice.cbegin(); itLigne != matrice.cend(); ++itLigne, ++i )
    {
-      vector<int>::const_iterator itColonne = (*itLigne).cbegin() + i;
+      Ligne::const_iterator itColonne = (*itLigne).cbegin() + i;
       
       somme += *itColonne;
    }
@@ -89,31 +91,95 @@ bool sommeDiagGD( const vector<vector<int>>& matrice, int& somme )
    return true;
 }
 
+bool sommeDiagDG( const Matrice& matrice, int& somme )
+{
+   //if ( !estCarree(matrice) )
+   //   return false;
+   
+   int i = 0;
+   somme = 0;
+   
+   for ( Matrice::const_reverse_iterator itLigne = matrice.crbegin(); itLigne != matrice.crend(); ++itLigne, ++i )
+   {
+      Ligne::const_iterator itColonne = (*itLigne).cbegin() + i;
+      
+      somme += *itColonne;
+   }
+   
+   return true;
+}
+
+ostream& operator<<(ostream& os, const Matrice& matrice)
+{
+   os << '[';
+   if(matrice.size() > 0){
+      os << matrice[0];
+      
+      for(size_t i = 1; i < matrice.size(); ++i){
+         os << ',';
+         os << matrice[i];
+      }   
+   }
+   os << ']';
+   return os;
+}
+
+
+bool estCarree(const Matrice& matrice){
+   for(size_t i = 0; i < matrice.size(); ++i){
+      if(matrice[i].size() != matrice.size())
+         return false;
+   }
+   return true;
+}
+
+bool compareMinSommeLignes(Ligne ligneA, Ligne ligneB){
+   return sommeLigne(ligneA) < sommeLigne(ligneB);
+}
+
+Ligne vectSommeMin(const Matrice& matrice){
+   return *min_element(matrice.cbegin(), matrice.cend(), compareMinSommeLignes);
+}
+
 int main()
 {
    const unsigned int W = 40;
-   vector<vector<int>> m = {
+   Matrice matrice = {
                             {1,2,3,4},
                             {5,6,7,8},
                             {9,10,11,12},
                             {13,14,15,16}
                            };
    
-   vector<int> v = {1,2,3,4,5};
-   cout << left;
-   cout << setw(W) << "Affichage de vecteur" << " : " << v << endl;
-   cout << setw(W) << "Somme des lignes de la matrice" << " : " << sommeLignes(m) << endl;
+   Ligne v = {1,2,3,4,5};
+   cout << left << boolalpha;
+   cout << setw(W) << "Affichage de vecteur : " << v << endl;
+   cout << setw(W) << "Affichage de matrice : " << matrice << endl;
+   cout << setw(W) << "Somme des lignes de la matrice : " << sommeLignes(matrice) << endl;
    
+   cout << setw(W) << "Matrice carree ? " << estCarree(matrice) << endl;
+   
+   cout << setw(W) << "Vecteur avec somme minimale : " << vectSommeMin(matrice) << endl;
    
    int diagGD = 0;
-   sommeDiagGD( m, diagGD );
-   cout << setw(W) << "Somme diagonale gauche-droite" << " : " << diagGD << endl;
+   sommeDiagGD( matrice, diagGD );
+   cout << setw(W) << "Somme diagonale gauche-droite : "  << diagGD << endl;
    
-   shuffleMatrice( m );
-   //cout << setw(W) <<  "Melange de la matrice" << " : " << m << endl;
+   int diagDG = 0;
+   sommeDiagDG( matrice, diagDG );
+   cout << setw(W) << "Somme diagonale droite-gauche : " << diagDG << endl;
    
-   sortMatrice( m );
-   //cout << setw(W) << "Tri de la matrice selon max ligne" << " : " << m << endl;
+   shuffleMatrice( matrice );
+   cout << setw(W) <<  "Melange de la matrice : " << matrice << endl;
    
+   sortMatrice( matrice );
+   cout << setw(W) << "Tri de la matrice selon max ligne : " << matrice << endl;
+   
+   cout << endl << endl << endl;
+   
+   
+   
+   
+   cin.get();
    return EXIT_SUCCESS;
 }
