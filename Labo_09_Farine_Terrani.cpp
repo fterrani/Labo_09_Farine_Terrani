@@ -12,19 +12,26 @@
  --------------------------------------------------------------------------
  */
 #include <cstdlib>
-#include <iostream>
-#include <iomanip>
-#include <vector>
-#include <algorithm>
-#include <random>
-#include <numeric>
-#include <ctime>
+#include <iostream>     // cout
+#include <iomanip>      // setw
+#include <vector>       // 
+#include <algorithm>    // 
+#include <random>       // rand
+#include <numeric>      // 
+#include <ctime>        // 
 
 using namespace std;
 
+// Nommer les vecteurs afin de faciliter leur utilisation
 using Ligne = vector<int>;
 using Matrice = vector<Ligne>;
 
+/**
+ * Fonction permettant d'afficher un vecteur
+ * @param os      Flux de sortie
+ * @param vec     Vecteur à afficher
+ * @return        Retourne un flux de sortie
+ */
 ostream& operator<<(ostream& os, const Ligne& vec)
 {
    os << '[';
@@ -45,10 +52,20 @@ ostream& operator<<(ostream& os, const Ligne& vec)
    return os;
 }
 
+/**
+ * Fonction permettant de faire la somme des valeurs d'un vecteur spécifique
+ * @param ligne   Vecteur dont on doit calculer la somme
+ * @return        Retourne la somme
+ */
 int sommeLigne(const Ligne& ligne) {
    return accumulate(ligne.begin(), ligne.end(), 0);
 }
 
+/**
+ * Fonction permettant de faire la somme des valeurs d'une matrice spécifique
+ * @param matrice    Matrice dont on doit calculer la somme
+ * @return           Retourne la somme
+ */
 Ligne sommeLignes( const Matrice& matrice )
 {
    vector<int> sommes( matrice.size() );
@@ -57,21 +74,41 @@ Ligne sommeLignes( const Matrice& matrice )
    return sommes;
 }
 
+/**
+ * Fonction permettant de mélanger les vecteurs d'une matrice
+ * @param matrice    Matrice dont on doit mélanger les vecteurs
+ */
 void shuffleMatrice( Matrice& matrice )
 {
    shuffle( matrice.begin(), matrice.end(), default_random_engine( time(nullptr) ) );
 }
 
+/**
+ * Fonction permettant de comparer la somme d'un vecteur comparé à un autre et retourner
+ * le maximum
+ * @param a    Première vecteur pour la comparaison
+ * @param b    Deuxième vecteur pour la comparaison
+ * @return     Retourne si la somme du premier vecteur est plus grand que celle du deuxième vecteur
+ */
 bool comparerMaxSommeLignes( const Ligne& a, const Ligne& b )
 {
    return *max_element(a.cbegin(), a.cend()) < *max_element(b.cbegin(), b.cend());
 }
 
+/**
+ * Fonction permettant de trier les vecteurs d'une matrice.
+ * @param matrice    Matrice dont on doit trier les vecteurs.
+ */
 void sortMatrice( Matrice& matrice )
 {
    sort( matrice.begin(), matrice.end(), comparerMaxSommeLignes );
 }
 
+/**
+ * Fonction permettant de contrôler si une matrice est carrée.
+ * @param matrice    Matrice dont on doit contrôler si elle est carrée.
+ * @return           Retourne un booléen indiquant son état.
+ */
 bool estCarree(const Matrice& matrice){
    for(size_t i = 0; i < matrice.size(); ++i){
       if(matrice[i].size() != matrice.size())
@@ -80,7 +117,13 @@ bool estCarree(const Matrice& matrice){
    return true;
 }
 
-
+/**
+ * Fonction permettant de calculer la somme des valeurs de la diagonale 
+ * haut-gauche à bas-droite, d'une matrice carrée.
+ * @param matrice    Matrice dont on doit calculer la diagonale
+ * @param somme      Valeur référencée de la somme.
+ * @return           Retourne un booléen pour confirmer si le calcul s'est effectué ou non
+ */
 bool sommeDiagGD( const Matrice& matrice, int& somme )
 {
    if ( !estCarree(matrice) )
@@ -100,6 +143,13 @@ bool sommeDiagGD( const Matrice& matrice, int& somme )
    return true;
 }
 
+/**
+ * Fonction permettant de calculer la somme des valeurs de la diagonale 
+ * haut-droite à bas-gauche, d'une matrice carrée.
+ * @param matrice    Matrice dont on doit calculer la diagonale
+ * @param somme      Valeur référencée de la somme.
+ * @return           Retourne un booléen pour confirmer si le calcul s'est effectué ou non
+ */
 bool sommeDiagDG( const Matrice& matrice, int& somme )
 {
    if ( !estCarree(matrice) )
@@ -118,6 +168,12 @@ bool sommeDiagDG( const Matrice& matrice, int& somme )
    return true;
 }
 
+/**
+ * Fonction permettant d'afficher une matrice spécifique
+ * @param os         Flux de sortie
+ * @param matrice    Matrice dont on souhaite afficher
+ * @return           Retourne un flux de sortie
+ */
 ostream& operator<<(ostream& os, const Matrice& matrice)
 {
    os << '[';
@@ -133,11 +189,23 @@ ostream& operator<<(ostream& os, const Matrice& matrice)
    return os;
 }
 
-
+/**
+ * Fonction permettant de comparer la somme d'un vecteur comparé à un autre et retourner
+ * le minimum
+ * @param ligneA    Première vecteur pour la comparaison
+ * @param ligneB    Deuxième vecteur pour la comparaison
+ * @return     Retourne si la somme du premier vecteur est plus petit que celle du deuxième vecteur
+ */
 bool compareMinSommeLignes(Ligne ligneA, Ligne ligneB){
    return sommeLigne(ligneA) < sommeLigne(ligneB);
 }
 
+/**
+ * Fonction permettant de retourner le vecteur d'une matrice dont la somme des valeurs
+ * est la plus petite.
+ * @param matrice    Matrice dont on doit le vecteur en question
+ * @return           Retourne le vecteur d'une matrice qui a la somme la plus petite.
+ */
 Ligne vectSommeMin(const Matrice& matrice){
    return *min_element(matrice.cbegin(), matrice.cend(), compareMinSommeLignes);
 }
