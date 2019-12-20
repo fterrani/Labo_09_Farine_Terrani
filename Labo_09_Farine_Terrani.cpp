@@ -93,11 +93,37 @@ ostream& operator<<( ostream& os, const Matrice& matrice )
 }
 
 /**
+ * Fonction permettant de contrôler si une matrice est carrée.
+ * @param matrice    Matrice dont on doit contrôler si elle est carrée.
+ * @return           true si matrice est carrée, false sinon.
+ */
+bool estCarree( const Matrice& matrice )
+{
+   for ( size_t i = 0; i < matrice.size(); ++i )
+   {
+      if ( matrice[i].size() != matrice.size() )
+         return false;
+   }
+   
+   return true;
+}
+
+bool comparerNbColLignes( const Ligne& ligneA, const Ligne& ligneB )
+{
+   return ligneA.size() < ligneB.size();
+}
+
+size_t maxCol( const Matrice& matrice )
+{
+   return (*max_element( matrice.cbegin(), matrice.cend(), comparerNbColLignes )).size();
+}
+
+/**
  * Fonction permettant de faire la somme des valeurs d'une ligne
  * @param ligne   Ligne dont on doit calculer la somme
  * @return        Somme des nombres contenus dans la ligne
  */
-int sommeLigne( const Ligne& ligne )
+int sommeTotaleLigne( const Ligne& ligne )
 {
    return accumulate( ligne.begin(), ligne.end(), 0 );
 }
@@ -107,15 +133,37 @@ int sommeLigne( const Ligne& ligne )
  * @param matrice    Matrice dont on veut calculer la somme des lignes
  * @return           Un vector<int> contenant les sommes des valeurs des lignes de la matrice
  */
-vector<int> sommeLignes( const Matrice& matrice )
+vector<int> sommeLigne( const Matrice& matrice )
 {
    // Cette fonction retourne un vector<int> car conceptuellement, on retourne davantage
-   // une collection de sommes qu'une "ligne".
+   // une collection de sommes d'éléments de lignes qu'une "ligne".
    
    vector<int> sommes( matrice.size() );
-   transform( matrice.cbegin(), matrice.cend(), sommes.begin(), sommeLigne );
+   transform( matrice.cbegin(), matrice.cend(), sommes.begin(), sommeTotaleLigne );
    
    return sommes;
+}
+
+/**
+ * Compare deux Lignes en fonction de la somme de leurs valeurs.
+ * @param ligneA    Première Ligne pour la comparaison
+ * @param ligneB    Deuxième Ligne pour la comparaison
+ * @return          true si la somme des valeurs de ligneA est plus petite que celle
+ *                  des valeurs de ligneB, false sinon.
+ */
+bool comparerMinSommeLignes( Ligne ligneA, Ligne ligneB )
+{
+   return sommeTotaleLigne( ligneA ) < sommeTotaleLigne( ligneB );
+}
+
+/**
+ * Retourne la Ligne d'une matrice dont la somme des valeurs est la plus petite.
+ * @param matrice    Matrice contenant les Lignes à comparer
+ * @return           La ligne qui a la somme la plus petite.
+ */
+Ligne vectSommeMin(const Matrice& matrice)
+{
+   return *min_element( matrice.cbegin(), matrice.cend(), comparerMinSommeLignes );
 }
 
 /**
@@ -152,16 +200,27 @@ void sortMatrice( Matrice& matrice )
 }
 
 /**
- * Fonction permettant de contrôler si une matrice est carrée.
- * @param matrice    Matrice dont on doit contrôler si elle est carrée.
- * @return           true si matrice est carrée, false sinon.
+ * Fonction permettant de calculer la somme des valeurs de la diagonale
+ * haut-droite à bas-gauche, d'une matrice carrée.
+ * @param matrice    Matrice dont on doit calculer la diagonale
+ * @param somme      Valeur référencée de la somme.
+ * @return           true si la matrice est carrée et a donc une diagonale dont la
+ *                   somme a pu être calculée, false sinon.
  */
-bool estCarree( const Matrice& matrice )
+bool sommeDiagDG( const Matrice& matrice, int& somme )
 {
-   for ( size_t i = 0; i < matrice.size(); ++i )
+   if ( !estCarree( matrice ) )
+      return false;
+   
+   int i = 0;
+   somme = 0;
+   
+   for ( const Ligne& ligne : matrice )
    {
-      if ( matrice[i].size() != matrice.size() )
-         return false;
+      Ligne::const_iterator itColonne = ligne.cbegin() + i;
+      
+      somme += *itColonne;
+      ++i;
    }
    
    return true;
@@ -194,55 +253,6 @@ bool sommeDiagGD( const Matrice& matrice, int& somme )
    }
    
    return true;
-}
-
-/**
- * Fonction permettant de calculer la somme des valeurs de la diagonale
- * haut-droite à bas-gauche, d'une matrice carrée.
- * @param matrice    Matrice dont on doit calculer la diagonale
- * @param somme      Valeur référencée de la somme.
- * @return           true si la matrice est carrée et a donc une diagonale dont la
- *                   somme a pu être calculée, false sinon.
- */
-bool sommeDiagDG( const Matrice& matrice, int& somme )
-{
-   if ( !estCarree( matrice ) )
-      return false;
-   
-   int i = 0;
-   somme = 0;
-   
-   for ( const Ligne& ligne : matrice )
-   {
-      Ligne::const_iterator itColonne = ligne.cbegin() + i;
-      
-      somme += *itColonne;
-      ++i;
-   }
-   
-   return true;
-}
-
-/**
- * Compare deux Lignes en fonction de la somme de leurs valeurs.
- * @param ligneA    Première Ligne pour la comparaison
- * @param ligneB    Deuxième Ligne pour la comparaison
- * @return          true si la somme des valeurs de ligneA est plus petite que celle
- *                  des valeurs de ligneB, false sinon.
- */
-bool comparerMinSommeLignes( Ligne ligneA, Ligne ligneB )
-{
-   return sommeLigne( ligneA ) < sommeLigne( ligneB );
-}
-
-/**
- * Retourne la Ligne d'une matrice dont la somme des valeurs est la plus petite.
- * @param matrice    Matrice contenant les Lignes à comparer
- * @return           La ligne qui a la somme la plus petite.
- */
-Ligne vectSommeMin(const Matrice& matrice)
-{
-   return *min_element( matrice.cbegin(), matrice.cend(), comparerMinSommeLignes );
 }
 
 int main()
@@ -293,8 +303,9 @@ int main()
    for ( Matrice& matrice : matrices )
    {
       cout << setw(W) << "Affichage de matrice : "           << matrice               << endl;
-      cout << setw(W) << "Somme des lignes de la matrice : " << sommeLignes(matrice)  << endl;
+      cout << setw(W) << "Somme des lignes de la matrice : " << sommeLigne(matrice)  << endl;
       cout << setw(W) << "Matrice carree ? "                 << estCarree(matrice)    << endl;
+      cout << setw(W) << "Taille de la plus longue ligne : " << maxCol(matrice)       << endl;
       cout << setw(W) << "Vecteur avec somme minimale : "    << vectSommeMin(matrice) << endl;
 
       int diag = 0;
