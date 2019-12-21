@@ -108,11 +108,22 @@ bool estCarree( const Matrice& matrice )
    return true;
 }
 
+/**
+ * Compare le nombre de colonnes de ligneA et ligneB.
+ * @param ligneA La ligne à comparer avec ligneB
+ * @param ligneB La ligne à comparer avec ligneA
+ * @return true si ligneA a moins de colonnes que ligneB, false sinon.
+ */
 bool comparerNbColLignes( const Ligne& ligneA, const Ligne& ligneB )
 {
    return ligneA.size() < ligneB.size();
 }
 
+/**
+ * Retourne le nombre de colonnes de la plus longue ligne d'une matrice.
+ * @param matrice La matrice contenant les lignes à examiner
+ * @return Le nombre de colonnes de la ligne la plus longue de matrice.
+ */
 size_t maxCol( const Matrice& matrice )
 {
    return (*max_element( matrice.cbegin(), matrice.cend(), comparerNbColLignes )).size();
